@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from 'axios';
+
 
 const Todo = () => {
   const [taskTitle, setTask] = useState("");
@@ -9,6 +11,17 @@ const Todo = () => {
   const [editDescription, seteditDescription] = useState("");
   const [count, setcount] = useState(0);
 
+  const url = 'http://localhost:5000/todo'
+  useEffect(() => {
+    axios.get(url)
+    .then((response)=>{
+      console.log(response);
+      setallTasks(response.data.everyTodo)
+      setcount(response.data.everyTodo.length)
+    })
+  }, [])
+  
+
   // console.log(task, description);
   // console.log(editDescription, editTaskTitle, editIndex);
 
@@ -17,11 +30,22 @@ const Todo = () => {
     if (taskTitle.trim() === "" || description.trim() === "") {
       alert("Input(s) can not be empty, fill in something");
     } else {
-      const todo = { taskTitle, description };
-      setallTasks([...allTasks, todo]);
-      setcount(count + 1);
-      setTask("");
-      setDescription("");
+    const todo = { taskTitle, description };
+    axios.post(url, todo)
+    .then((response)=>{
+      if(response.status === 201){
+        setallTasks([...allTasks, response.data.todoList]);
+        setcount(count + 1);
+        setTask("");
+        setDescription("");
+        // console.log(todo); 
+      }else{
+        console.log(`No response from backend`);
+      }
+    })
+    .catch((err)=>{
+      console.log(err);    
+    })
     }
   };
 
@@ -103,6 +127,7 @@ const Todo = () => {
         <div className="card shadow-sm my-3" key={i}>
           <ul className="list-group list-group-flush">
             <li className="list-group-item text-center text-muted p-3 shadow">
+              <p className="fw-bold text-secondary">Task {i+1}</p>
               <span className="fw-bold">Task Title: </span>
               {task.taskTitle}
               <br />
