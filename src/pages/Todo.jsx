@@ -53,8 +53,17 @@ const Todo = () => {
     // alert('yes')
     const confirmation = window.confirm("Are you sure you want to delete?");
     if (confirmation) {
-      setallTasks(allTasks.filter((task, i) => i !== index));
-      setcount(count - 1);
+      const userId = allTasks[index]._id
+      axios.delete(`${url}/${userId}`)
+      .then((res)=>{
+        if(res.status === 200){
+          setallTasks(allTasks.filter((task, i) => i !== index));
+          setcount(count - 1);
+        }
+      })
+      .catch((err)=>{
+        console.log(err); 
+      })
     }
   };
 
